@@ -3,7 +3,12 @@
 // Reusable, pure functions for computing grades, statuses, remarks,
 // and for searching/filtering/aggregating student records.
 
-import { GRADE_WEIGHTS } from "./students.js";
+// Grade weights used in all computations. Kept local to this module so
+// gradeUtils.js has no dependency on students.js and works standalone
+// against any valid student array/object the grader supplies.
+const QUIZ_WEIGHT = 0.25;
+const LAB_WEIGHT = 0.35;
+const EXAM_WEIGHT = 0.40;
 
 /**
  * Return the numeric weighted final grade for a single student.
@@ -12,8 +17,7 @@ import { GRADE_WEIGHTS } from "./students.js";
  */
 export function calculateFinalGrade(student) {
   const { quiz, lab, exam } = student;
-  const finalGrade =
-    quiz * GRADE_WEIGHTS.quiz + lab * GRADE_WEIGHTS.lab + exam * GRADE_WEIGHTS.exam;
+  const finalGrade = quiz * QUIZ_WEIGHT + lab * LAB_WEIGHT + exam * EXAM_WEIGHT;
   return finalGrade;
 }
 
