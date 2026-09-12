@@ -1,138 +1,88 @@
-// gradeUtils.js
-// Grade Utility Module
-// Reusable, pure functions for computing grades, statuses, remarks,
-// and for searching/filtering/aggregating student records.
+// display.js
+// Display Module
+// Functions in this module are responsible ONLY for rendering data to the
+// webpage. They do not compute grades/statuses/filters themselves.
 
-// Grade weights used in all computations. Kept local to this module so
-// gradeUtils.js has no dependency on students.js and works standalone
-// against any valid student array/object the grader supplies.
-const QUIZ_WEIGHT = 0.25;
-const LAB_WEIGHT = 0.35;
-const EXAM_WEIGHT = 0.40;
+import {
+  calculateFinalGrade,
+  getAcademicStatus,
+  getPerformanceRemark,
+  calculateClassAverage,
+  countPassingStudents,
+  getTopStudent,
+} from "./gradeUtils.js";
 
 /**
- * Return the numeric weighted final grade for a single student.
- * Weights: Quiz 25%, Laboratory 35%, Exam 40%.
- * Uses object destructuring to pull the needed scores off the student.
+ * Show a message in the required message area.
+ * Passing an empty string clears the message area.
  */
-export function calculateFinalGrade(student) {
-  const { quiz, lab, exam } = student;
-  const finalGrade = quiz * QUIZ_WEIGHT + lab * LAB_WEIGHT + exam * EXAM_WEIGHT;
-  return finalGrade;
+export function displayMessage(message) {
+  const messageArea = document.getElementById("messageArea");
+  messageArea.textContent = message;
 }
 
 /**
- * Classify a numeric final grade into an academic status label.
- * 90+            -> "Excellent"
- * 75 - 89.99     -> "Passed"
- * 70 - 74.99     -> "Needs Improvement"
- * below 70       -> "Failed"
+ * Render one student card for each supplied student inside #studentList.
+ * When the result set is empty, the message area displays exactly
+ * "No students found" and the list container is cleared.
  */
-export function getAcademicStatus(grade) {
-  if (grade >= 90) {
-    return "Excellent";
-  } else if (grade >= 75) {
-    return "Passed";
-  } else if (grade >= 70) {
-    return "Needs Improvement";
-  } else {
-    return "Failed";
-  }
-}
+export function displayStudents(students) {
+  const studentList = document.getElementById("studentList");
+  studentList.innerHTML = "";
 
-/**
- * Classify a numeric final grade into a performance remark using a
- * switch(true) structure, as required by the control-structure requirement.
- * 90+            -> "Outstanding"
- * 85 - 89.99     -> "Very Good"
- * 80 - 84.99     -> "Good"
- * 75 - 79.99     -> "Satisfactory"
- * below 75       -> "Unsatisfactory"
- */
-export function getPerformanceRemark(grade) {
-  switch (true) {
-    case grade >= 90:
-      return "Outstanding";
-    case grade >= 85:
-      return "Very Good";
-    case grade >= 80:
-      return "Good";
-    case grade >= 75:
-      return "Satisfactory";
-    default:
-      return "Unsatisfactory";
-  }
-}
-
-/**
- * Return the students whose name contains the query string.
- * The search is case-insensitive. Uses filter() with an arrow function.
- */
-export function searchStudents(students, query) {
-  const normalizedQuery = query.trim().toLowerCase();
-  return students.filter((student) =>
-    student.name.toLowerCase().includes(normalizedQuery)
-  );
-}
-
-/**
- * Return all students when block is "All"; otherwise return only the
- * students belonging to the selected block.
- */
-export function filterStudentsByBlock(students, block) {
-  if (block === "All") {
-    return students;
-  }
-  return students.filter((student) => student.block === block);
-}
-
-/**
- * Return all students when status is "All"; otherwise return only the
- * students whose computed academic status matches the selected status.
- */
-export function filterStudentsByStatus(students, status) {
-  if (status === "All") {
-    return students;
-  }
-  return students.filter(
-    (student) => getAcademicStatus(calculateFinalGrade(student)) === status
-  );
-}
-
-/**
- * Return the numeric average of the computed final grades for the
- * supplied array of students. Returns 0 for an empty array.
- * Uses reduce() for the aggregation.
- */
-export function calculateClassAverage(students) {
   if (students.length === 0) {
-    return 0;
+    displayMessage("No students found");
+    return;
   }
-  const total = students.reduce(
-    (sum, student) => sum + calculateFinalGrade(student),
-    0
-  );
-  return total / students.length;
-}
 
-/**
- * Return the count of students with a final grade of 75 or higher.
- */
-export function countPassingStudents(students) {
-  return students.filter((student) => calculateFinalGrade(student) >= 75).length;
-}
+  displayMessage("");
 
-/**
- * Return the student object with the highest computed final grade.
- * Returns null for an empty array. Uses reduce() for the aggregation.
- */
-export function getTopStudent(students) {
-  if (students.length === 0) {
-    return null;
-  }
-  return students.reduce((topStudent, currentStudent) => {
-    return calculateFinalGrade(currentStudent) > calculateFinalGrade(topStudent)
-      ? currentStudent
-      : topStudent;
+  students.forEach((student) => {
+    const { id, name, block, quiz, lab, exam } = student;
+    const finalGrade = calculateFinalGrade(student);
+    const status = getAcademicStatus(finalGrade);
+    const remark = getPerformanceRemark(finalGrade);
+
+    const card = document.createElement("article");
+    card.className = "student-card";
+    card.dataset.id = id;
+
+    card.innerHTML = `
+      <h3 class="student-name">${name}</h3>
+      <p class="student-block">Block: ${block}</p>
+      <div class="student-scores">
+        <span>Quiz: ${quiz}</span>
+        <span>Lab: ${lab}</span>
+        <span>Exam: ${exam}</span>
+      </div>
+      <p class="student-final-grade">Final Grade: ${finalGrade.toFixed(2)}</p>
+      <p class="student-status status-${status.replace(/\s+/g, "-").toLowerCase()}">${status}</p>
+      <p class="student-remark">Remark: ${remark}</p>
+    `;
+
+    studentList.appendChild(card);
   });
+}
+
+/**
+ * Update the class average, passing count, total displayed students,
+ * and top-student name based on the currently displayed result set.
+ */
+export function displaySummary(students) {
+  const classAverageEl = document.getElementById("classAverage");
+  const passingCountEl = document.getElementById("passingCount");
+  const displayedCountEl = document.getElementById("displayedCount");
+  const topStudentEl = document.getElementById("topStudent");
+
+  displayedCountEl.textContent = students.length;
+
+  const average = calculateClassAverage(students);
+  const passingCount = countPassingStudents(students);
+  const topStudent = getTopStudent(students);
+
+  classAverageEl.textContent = average.toFixed(2);
+  passingCountEl.textContent = passingCount;
+  topStudentEl.textContent = topStudent
+    ? `${topStudent.name} (${calculateFinalGrade(topStudent).toFixed(2)})`
+    : "N/A";
 }
