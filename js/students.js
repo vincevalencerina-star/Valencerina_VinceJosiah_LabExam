@@ -11,10 +11,3 @@ export const students = [
   { id: 5, name: "Erika Mendoza", block: "31-ITE-03", quiz: 82, lab: 87, exam: 84 },
   { id: 6, name: "Francis Lim", block: "31-ITE-03", quiz: 59, lab: 65, exam: 61 },
 ];
-
-// Grade weights used across all computations.
-export const GRADE_WEIGHTS = {
-  quiz: 0.25,
-  lab: 0.35,
-  exam: 0.40,
-};
