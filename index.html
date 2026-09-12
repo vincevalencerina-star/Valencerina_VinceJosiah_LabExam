@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Performance Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="page-header">
+    <div class="header-inner">
+      <p class="ledger-mark">Prelim Term &middot; SITE</p>
+      <h1>Student Performance Dashboard</h1>
+    </div>
+  </header>
+
+  <main class="dashboard">
+
+    <section class="summary-band" aria-label="Class summary">
+      <div class="summary-figure">
+        <span class="summary-value" id="classAverage">0.00</span>
+        <span class="summary-label">Class average</span>
+      </div>
+      <div class="summary-figure">
+        <span class="summary-value" id="passingCount">0</span>
+        <span class="summary-label">Passing</span>
+      </div>
+      <div class="summary-figure">
+        <span class="summary-value" id="displayedCount">0</span>
+        <span class="summary-label">Displayed</span>
+      </div>
+      <div class="summary-figure summary-figure--wide">
+        <span class="summary-value summary-value--name" id="topStudent">&mdash;</span>
+        <span class="summary-label">Top student</span>
+      </div>
+    </section>
+
+    <section class="controls" aria-label="Search and filters">
+      <div class="control-group control-group--search">
+        <label for="searchInput">Search by name</label>
+        <input type="text" id="searchInput" placeholder="Enter student name" autocomplete="off" />
+      </div>
+
+      <div class="control-group">
+        <label for="blockFilter">Block</label>
+        <select id="blockFilter">
+          <option value="All">All</option>
+          <option value="31-ITE-01">31-ITE-01</option>
+          <option value="31-ITE-02">31-ITE-02</option>
+          <option value="31-ITE-03">31-ITE-03</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="statusFilter">Status</label>
+        <select id="statusFilter">
+          <option value="All">All</option>
+          <option value="Excellent">Excellent</option>
+          <option value="Passed">Passed</option>
+          <option value="Needs Improvement">Needs Improvement</option>
+          <option value="Failed">Failed</option>
+        </select>
+      </div>
+
+      <div class="control-group control-group--buttons">
+        <button type="button" id="applyBtn">Apply Filters</button>
+        <button type="button" id="resetBtn" class="btn-secondary">Reset</button>
+      </div>
+    </section>
+
+    <p id="messageArea" class="message-area" role="status"></p>
+
+    <section id="studentList" class="student-list" aria-label="Student records"></section>
+
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
